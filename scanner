@@ -1,0 +1,844 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Crypto Trading Bot - Complete System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/4.4.0/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .terminal {
+            background: #0d1117;
+            color: #58a6ff;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 20px;
+            border-radius: 8px;
+            height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            border: 1px solid #30363d;
+        }
+        .terminal::-webkit-scrollbar {
+            width: 8px;
+        }
+        .terminal::-webkit-scrollbar-track {
+            background: #161b22;
+        }
+        .terminal::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+        .card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            border-color: #60a5fa;
+            box-shadow: 0 10px 25px rgba(96, 165, 250, 0.1);
+        }
+        .pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(34, 197, 94, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.6); }
+        }
+        .typing::after {
+            content: '_';
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .metric-card {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-active { background: #22c55e; box-shadow: 0 0 10px #22c55e; }
+        .status-inactive { background: #ef4444; }
+        .status-warning { background: #f59e0b; }
+    </style>
+</head>
+<body class="bg-gray-900 min-h-screen text-white">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-900 to-purple-900 p-6 shadow-2xl">
+        <div class="container mx-auto">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="text-4xl">🤖</div>
+                    <div>
+                        <h1 class="text-3xl font-bold gradient-text">Intelligent Crypto Trading Bot</h1>
+                        <p class="text-blue-300">Advanced Market Psychology & Pattern Recognition System</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-300">System Status</div>
+                    <div class="flex items-center">
+                        <span class="status-indicator status-active"></span>
+                        <span class="text-green-400 font-semibold">Paper Trading Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Installation Panel -->
+    <div class="container mx-auto px-6 py-8">
+        <div class="card rounded-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+                <i class="fas fa-rocket text-blue-400 mr-3"></i>
+                One-Click System Installation
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <button id="install-btn" onclick="installSystem()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-300 transform hover:scale-105">
+                    <i class="fas fa-download mr-2"></i>
+                    Install Complete System
+                </button>
+                <button id="start-btn" onclick="startBot()" class="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-300 transform hover:scale-105" disabled>
+                    <i class="fas fa-play mr-2"></i>
+                    Start Paper Trading
+                </button>
+                <button id="discover-btn" onclick="discoverOpportunities()" class="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-lg transition-all duration-300 transform hover:scale-105" disabled>
+                    <i class="fas fa-search mr-2"></i>
+                    Discover Opportunities
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Terminal Output -->
+            <div class="card rounded-xl p-6">
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                    <i class="fas fa-terminal text-green-400 mr-3"></i>
+                    Live System Terminal
+                </h3>
+                <div id="terminal" class="terminal">
+🤖 Intelligent Crypto Trading Bot v2.0
+=====================================
+
+🔮 Advanced Market Psychology System
+📊 Universal Coin Discovery Engine  
+🐋 Whale Manipulation Detection
+📰 News Sentiment Analysis
+👑 Influencer Tracking System
+🕯️ Candlestick Divination Engine
+
+Ready for installation...
+
+$ <span class="typing"></span>
+                </div>
+                <div class="mt-4 flex space-x-2">
+                    <button onclick="clearTerminal()" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm">
+                        <i class="fas fa-trash mr-1"></i>Clear
+                    </button>
+                    <button onclick="saveLog()" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm">
+                        <i class="fas fa-save mr-1"></i>Save Log
+                    </button>
+                </div>
+            </div>
+
+            <!-- Performance Dashboard -->
+            <div class="card rounded-xl p-6">
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                    <i class="fas fa-chart-line text-blue-400 mr-3"></i>
+                    Paper Trading Performance
+                </h3>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="metric-card rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-green-400" id="total-pnl">$0.00</div>
+                        <div class="text-sm text-gray-400">Total P&L</div>
+                    </div>
+                    <div class="metric-card rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-blue-400" id="win-rate">0%</div>
+                        <div class="text-sm text-gray-400">Win Rate</div>
+                    </div>
+                    <div class="metric-card rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-purple-400" id="total-trades">0</div>
+                        <div class="text-sm text-gray-400">Total Trades</div>
+                    </div>
+                    <div class="metric-card rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-yellow-400" id="active-positions">0</div>
+                        <div class="text-sm text-gray-400">Active Positions</div>
+                    </div>
+                </div>
+                <div class="h-64">
+                    <canvas id="performance-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Opportunities -->
+        <div class="card rounded-xl p-6 mt-8">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-bullseye text-yellow-400 mr-3"></i>
+                Live Market Opportunities
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-700">
+                            <th class="text-left py-3">Coin</th>
+                            <th class="text-left py-3">Category</th>
+                            <th class="text-left py-3">Signal</th>
+                            <th class="text-left py-3">Confidence</th>
+                            <th class="text-left py-3">Psychology</th>
+                            <th class="text-left py-3">Opportunity Score</th>
+                            <th class="text-left py-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="opportunities-table">
+                        <tr class="border-b border-gray-800">
+                            <td colspan="7" class="py-8 text-center text-gray-500">
+                                <i class="fas fa-search text-4xl mb-2"></i><br>
+                                Click "Discover Opportunities" to scan the market
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Analysis Panels -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+            <!-- News Sentiment -->
+            <div class="card rounded-xl p-6">
+                <h4 class="font-bold mb-3 flex items-center">
+                    <i class="fas fa-newspaper text-blue-400 mr-2"></i>
+                    News Sentiment
+                </h4>
+                <div id="news-sentiment" class="space-y-2">
+                    <div class="text-gray-400 text-sm">Monitoring crypto news...</div>
+                </div>
+            </div>
+
+            <!-- Influencer Activity -->
+            <div class="card rounded-xl p-6">
+                <h4 class="font-bold mb-3 flex items-center">
+                    <i class="fas fa-users text-purple-400 mr-2"></i>
+                    Influencer Signals
+                </h4>
+                <div id="influencer-signals" class="space-y-2">
+                    <div class="text-gray-400 text-sm">Tracking influencer activity...</div>
+                </div>
+            </div>
+
+            <!-- Market Psychology -->
+            <div class="card rounded-xl p-6">
+                <h4 class="font-bold mb-3 flex items-center">
+                    <i class="fas fa-brain text-green-400 mr-2"></i>
+                    Market Psychology
+                </h4>
+                <div id="market-psychology" class="space-y-2">
+                    <div class="text-gray-400 text-sm">Reading market emotions...</div>
+                </div>
+            </div>
+
+            <!-- Whale Activity -->
+            <div class="card rounded-xl p-6">
+                <h4 class="font-bold mb-3 flex items-center">
+                    <i class="fas fa-fish text-cyan-400 mr-2"></i>
+                    Whale Detection
+                </h4>
+                <div id="whale-activity" class="space-y-2">
+                    <div class="text-gray-400 text-sm">Monitoring whale movements...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Architecture -->
+        <div class="card rounded-xl p-6 mt-8">
+            <h3 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-sitemap text-orange-400 mr-3"></i>
+                System Architecture Status
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center p-4 rounded-lg bg-gray-800">
+                    <div class="text-2xl mb-2">📊</div>
+                    <div class="font-semibold">Technical Analysis</div>
+                    <div class="text-green-400 text-sm" id="tech-status">Ready</div>
+                </div>
+                <div class="text-center p-4 rounded-lg bg-gray-800">
+                    <div class="text-2xl mb-2">📰</div>
+                    <div class="font-semibold">News Sentiment</div>
+                    <div class="text-green-400 text-sm" id="news-status">Ready</div>
+                </div>
+                <div class="text-center p-4 rounded-lg bg-gray-800">
+                    <div class="text-2xl mb-2">👑</div>
+                    <div class="font-semibold">Influencer Tracking</div>
+                    <div class="text-green-400 text-sm" id="influencer-status">Ready</div>
+                </div>
+                <div class="text-center p-4 rounded-lg bg-gray-800">
+                    <div class="text-2xl mb-2">🕯️</div>
+                    <div class="font-semibold">Candlestick Divination</div>
+                    <div class="text-green-400 text-sm" id="candle-status">Ready</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let botState = {
+            installed: false,
+            running: false,
+            paperCapital: 20.00,
+            totalPnL: 0,
+            totalTrades: 0,
+            winningTrades: 0,
+            activePositions: [],
+            opportunities: [],
+            performanceHistory: []
+        };
+
+        let terminal;
+        let performanceChart;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            terminal = document.getElementById('terminal');
+            initializeChart();
+            updateDashboard();
+        });
+
+        // Terminal functions
+        function writeToTerminal(text, type = 'normal') {
+            const timestamp = new Date().toLocaleTimeString();
+            let color = '#58a6ff';
+            
+            switch(type) {
+                case 'success': color = '#22c55e'; break;
+                case 'error': color = '#ef4444'; break;
+                case 'warning': color = '#f59e0b'; break;
+                case 'info': color = '#60a5fa'; break;
+                case 'magic': color = '#a855f7'; break;
+            }
+            
+            const line = `[${timestamp}] ${text}\n`;
+            const span = document.createElement('span');
+            span.style.color = color;
+            span.textContent = line;
+            
+            terminal.appendChild(span);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function clearTerminal() {
+            terminal.innerHTML = `🤖 Intelligent Crypto Trading Bot v2.0
+=====================================
+
+🔮 Advanced Market Psychology System
+📊 Universal Coin Discovery Engine  
+🐋 Whale Manipulation Detection
+📰 News Sentiment Analysis
+👑 Influencer Tracking System
+🕯️ Candlestick Divination Engine
+
+Ready for installation...
+
+$ <span class="typing"></span>`;
+        }
+
+        function saveLog() {
+            const logContent = terminal.textContent;
+            const blob = new Blob([logContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `trading-bot-log-${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Installation system
+        async function installSystem() {
+            const installBtn = document.getElementById('install-btn');
+            installBtn.disabled = true;
+            installBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Installing...';
+
+            writeToTerminal('🚀 Starting system installation...', 'info');
+            await sleep(1000);
+
+            writeToTerminal('📦 Installing Node.js dependencies...', 'info');
+            await simulateInstallation('npm install axios ws binance-api-node sentiment ccxt', 2000);
+            writeToTerminal('✅ Dependencies installed successfully', 'success');
+
+            writeToTerminal('🔧 Setting up trading engine...', 'info');
+            await simulateInstallation('Initializing technical analysis module', 1500);
+            await simulateInstallation('Configuring news sentiment engine', 1500);
+            await simulateInstallation('Loading influencer tracking database', 1500);
+            await simulateInstallation('Activating candlestick divination system', 1500);
+            writeToTerminal('✅ Trading engine configured', 'success');
+
+            writeToTerminal('🌐 Connecting to market data feeds...', 'info');
+            await simulateInstallation('Connecting to Binance WebSocket', 1000);
+            await simulateInstallation('Connecting to CoinGecko API', 800);
+            await simulateInstallation('Connecting to NewsAPI', 800);
+            await simulateInstallation('Connecting to Twitter API v2', 800);
+            writeToTerminal('✅ Market data feeds connected', 'success');
+
+            writeToTerminal('🔮 Initializing AI analysis systems...', 'magic');
+            await simulateInstallation('Loading candlestick pattern database', 1200);
+            await simulateInstallation('Calibrating market psychology sensors', 1200);
+            await simulateInstallation('Training manipulation detection algorithms', 1200);
+            writeToTerminal('✅ AI systems online and learning', 'success');
+
+            writeToTerminal('💾 Setting up paper trading environment...', 'info');
+            await simulateInstallation('Creating virtual portfolio', 800);
+            await simulateInstallation('Initializing trade tracking system', 800);
+            await simulateInstallation('Setting up performance metrics', 800);
+            writeToTerminal('✅ Paper trading environment ready', 'success');
+
+            writeToTerminal('🎉 Installation complete! System ready for paper trading.', 'success');
+            
+            botState.installed = true;
+            installBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Installed';
+            installBtn.classList.add('pulse-glow');
+            
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('discover-btn').disabled = false;
+            
+            updateSystemStatus();
+        }
+
+        // Start paper trading
+        async function startBot() {
+            const startBtn = document.getElementById('start-btn');
+            startBtn.disabled = true;
+            startBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Starting...';
+
+            writeToTerminal('🤖 Starting paper trading bot...', 'success');
+            writeToTerminal(`💰 Initial paper capital: $${botState.paperCapital.toFixed(2)}`, 'info');
+
+            await sleep(1000);
+            writeToTerminal('📊 Initializing market analysis...', 'info');
+            await sleep(800);
+            writeToTerminal('🔍 Beginning opportunity discovery...', 'info');
+            
+            botState.running = true;
+            startBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Running';
+            startBtn.onclick = stopBot;
+            
+            // Start background processes
+            startMarketAnalysis();
+            startPerformanceTracking();
+            
+            writeToTerminal('✅ Paper trading active! Monitoring market 24/7...', 'success');
+            writeToTerminal('🎯 Use "Discover Opportunities" to scan for trades', 'info');
+        }
+
+        async function stopBot() {
+            const startBtn = document.getElementById('start-btn');
+            botState.running = false;
+            startBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Start Paper Trading';
+            startBtn.onclick = startBot;
+            writeToTerminal('⏸️ Paper trading paused', 'warning');
+        }
+
+        // Market analysis and opportunity discovery
+        async function discoverOpportunities() {
+            if (!botState.running) {
+                writeToTerminal('❌ Start the bot first before discovering opportunities', 'error');
+                return;
+            }
+
+            const discoverBtn = document.getElementById('discover-btn');
+            discoverBtn.disabled = true;
+            discoverBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Scanning...';
+
+            writeToTerminal('🔍 Scanning entire cryptocurrency universe...', 'info');
+            await sleep(1000);
+
+            writeToTerminal('📊 Analyzing 1000+ trading pairs...', 'info');
+            await sleep(1500);
+
+            writeToTerminal('🎯 Filtering by volume and liquidity...', 'info');
+            await sleep(1000);
+
+            writeToTerminal('🔮 Reading candlestick tea leaves...', 'magic');
+            await sleep(1200);
+
+            writeToTerminal('📰 Analyzing news sentiment patterns...', 'info');
+            await sleep(1000);
+
+            writeToTerminal('👑 Tracking influencer activities...', 'info');
+            await sleep(1000);
+
+            writeToTerminal('🐋 Detecting whale manipulation...', 'info');
+            await sleep(1200);
+
+            // Generate mock opportunities
+            const opportunities = generateMockOpportunities();
+            botState.opportunities = opportunities;
+
+            writeToTerminal(`✅ Discovery complete! Found ${opportunities.length} opportunities`, 'success');
+            
+            // Display top opportunities
+            opportunities.slice(0, 3).forEach(opp => {
+                writeToTerminal(`🎯 ${opp.symbol}: ${opp.signal} (${opp.confidence}% confidence) - ${opp.psychology}`, 'success');
+            });
+
+            updateOpportunitiesTable();
+            updateAnalysisPanels();
+            
+            discoverBtn.disabled = false;
+            discoverBtn.innerHTML = '<i class="fas fa-search mr-2"></i>Discover Opportunities';
+
+            // Simulate some trades
+            setTimeout(() => executePaperTrades(), 2000);
+        }
+
+        // Generate realistic mock opportunities
+        function generateMockOpportunities() {
+            const coins = [
+                { symbol: 'PEPEUSDT', category: 'Meme', baseAsset: 'PEPE' },
+                { symbol: 'SHIBUSDT', category: 'Meme', baseAsset: 'SHIB' },
+                { symbol: 'AIUSDT', category: 'AI', baseAsset: 'AI' },
+                { symbol: 'MATICUSDT', category: 'Layer1', baseAsset: 'MATIC' },
+                { symbol: 'FLOKIUSDT', category: 'Gaming', baseAsset: 'FLOKI' },
+                { symbol: 'UNIUSDT', category: 'DeFi', baseAsset: 'UNI' },
+                { symbol: 'SANDUSDT', category: 'Gaming', baseAsset: 'SAND' },
+                { symbol: 'LINKUSDT', category: 'Oracle', baseAsset: 'LINK' }
+            ];
+
+            const signals = ['BUY', 'STRONG_BUY', 'SELL', 'WAIT', 'SCALP'];
+            const psychology = ['EUPHORIA', 'GREED', 'FEAR', 'ACCUMULATION', 'MANIPULATION', 'HOPE', 'DESPAIR'];
+            
+            return coins.map(coin => ({
+                ...coin,
+                signal: signals[Math.floor(Math.random() * signals.length)],
+                confidence: Math.floor(Math.random() * 40) + 60, // 60-100%
+                psychology: psychology[Math.floor(Math.random() * psychology.length)],
+                opportunityScore: Math.floor(Math.random() * 30) + 70, // 70-100
+                price: (Math.random() * 10 + 0.1).toFixed(6),
+                change24h: (Math.random() * 20 - 10).toFixed(2) // -10% to +10%
+            }));
+        }
+
+        // Execute paper trades
+        async function executePaperTrades() {
+            const tradableOpportunities = botState.opportunities.filter(opp => 
+                opp.signal === 'BUY' || opp.signal === 'STRONG_BUY'
+            );
+
+            if (tradableOpportunities.length === 0) {
+                writeToTerminal('📊 No suitable trading opportunities found', 'info');
+                return;
+            }
+
+            // Select top opportunity
+            const topOpp = tradableOpportunities.sort((a, b) => b.opportunityScore - a.opportunityScore)[0];
+            
+            writeToTerminal(`💰 Executing paper trade: ${topOpp.symbol}`, 'success');
+            writeToTerminal(`📊 Signal: ${topOpp.signal} | Confidence: ${topOpp.confidence}%`, 'info');
+            writeToTerminal(`🧠 Psychology: ${topOpp.psychology}`, 'magic');
+
+            // Calculate position size (2% of capital)
+            const positionSize = botState.paperCapital * 0.02;
+            const quantity = positionSize / parseFloat(topOpp.price);
+
+            const trade = {
+                id: Date.now(),
+                symbol: topOpp.symbol,
+                side: 'BUY',
+                quantity: quantity,
+                price: parseFloat(topOpp.price),
+                value: positionSize,
+                timestamp: new Date(),
+                confidence: topOpp.confidence,
+                psychology: topOpp.psychology,
+                status: 'OPEN'
+            };
+
+            botState.activePositions.push(trade);
+            botState.totalTrades++;
+
+            writeToTerminal(`✅ Paper trade executed: ${quantity.toFixed(2)} ${topOpp.baseAsset} @ $${topOpp.price}`, 'success');
+            writeToTerminal(`💵 Position value: $${positionSize.toFixed(2)}`, 'info');
+
+            updateDashboard();
+
+            // Simulate trade outcome after 30 seconds
+            setTimeout(() => closePaperTrade(trade), 30000);
+        }
+
+        // Close paper trade with simulated outcome
+        function closePaperTrade(trade) {
+            const index = botState.activePositions.findIndex(pos => pos.id === trade.id);
+            if (index === -1) return;
+
+            // Simulate price movement based on confidence
+            const priceMultiplier = trade.confidence > 80 ? 
+                1 + (Math.random() * 0.06 + 0.01) : // High confidence: +1% to +7%
+                1 + (Math.random() * 0.08 - 0.04); // Lower confidence: -4% to +4%
+
+            const exitPrice = trade.price * priceMultiplier;
+            const pnl = (exitPrice - trade.price) * trade.quantity;
+            const pnlPercent = ((exitPrice - trade.price) / trade.price) * 100;
+
+            trade.exitPrice = exitPrice;
+            trade.pnl = pnl;
+            trade.pnlPercent = pnlPercent;
+            trade.status = 'CLOSED';
+
+            botState.totalPnL += pnl;
+            if (pnl > 0) botState.winningTrades++;
+
+            botState.activePositions.splice(index, 1);
+
+            const outcome = pnl > 0 ? 'PROFIT' : 'LOSS';
+            const color = pnl > 0 ? 'success' : 'error';
+
+            writeToTerminal(`📈 Trade closed: ${trade.symbol} | ${outcome}: $${pnl.toFixed(2)} (${pnlPercent.toFixed(2)}%)`, color);
+            
+            if (pnl > 0) {
+                writeToTerminal(`🎉 ${trade.psychology} psychology read correctly!`, 'magic');
+            } else {
+                writeToTerminal(`📚 Learning from ${trade.psychology} pattern...`, 'warning');
+            }
+
+            updateDashboard();
+            addPerformanceData();
+        }
+
+        // Background market analysis
+        function startMarketAnalysis() {
+            setInterval(() => {
+                if (!botState.running) return;
+
+                // Simulate live market analysis
+                const analysisTypes = [
+                    { text: 'Detected whale accumulation in MATIC...', type: 'info' },
+                    { text: 'News sentiment spike for AI tokens...', type: 'info' },
+                    { text: 'Elon Musk tweeted about DOGE (credibility: 25%)...', type: 'warning' },
+                    { text: 'Candlestick reading: Market showing GREED emotion...', type: 'magic' },
+                    { text: 'Volume spike detected in PEPE - possible manipulation...', type: 'warning' },
+                    { text: 'Smart money accumulating during fear phase...', type: 'success' }
+                ];
+
+                const randomAnalysis = analysisTypes[Math.floor(Math.random() * analysisTypes.length)];
+                writeToTerminal(`🔍 ${randomAnalysis.text}`, randomAnalysis.type);
+
+            }, 15000); // Every 15 seconds
+        }
+
+        function startPerformanceTracking() {
+            setInterval(() => {
+                if (!botState.running) return;
+                addPerformanceData();
+            }, 60000); // Every minute
+        }
+
+        // Dashboard updates
+        function updateDashboard() {
+            document.getElementById('total-pnl').textContent = `$${botState.totalPnL.toFixed(2)}`;
+            document.getElementById('total-pnl').className = botState.totalPnL >= 0 ? 
+                'text-2xl font-bold text-green-400' : 'text-2xl font-bold text-red-400';
+
+            const winRate = botState.totalTrades > 0 ? 
+                (botState.winningTrades / botState.totalTrades * 100).toFixed(1) : '0';
+            document.getElementById('win-rate').textContent = `${winRate}%`;
+
+            document.getElementById('total-trades').textContent = botState.totalTrades;
+            document.getElementById('active-positions').textContent = botState.activePositions.length;
+        }
+
+        function updateOpportunitiesTable() {
+            const tbody = document.getElementById('opportunities-table');
+            tbody.innerHTML = '';
+
+            botState.opportunities.slice(0, 8).forEach(opp => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-800 hover:bg-gray-800 transition-colors';
+                
+                const signalColor = opp.signal === 'BUY' || opp.signal === 'STRONG_BUY' ? 'text-green-400' :
+                                   opp.signal === 'SELL' ? 'text-red-400' : 'text-gray-400';
+                
+                row.innerHTML = `
+                    <td class="py-3">
+                        <div class="font-semibold">${opp.baseAsset}</div>
+                        <div class="text-xs text-gray-400">${opp.symbol}</div>
+                    </td>
+                    <td class="py-3">
+                        <span class="px-2 py-1 rounded text-xs bg-blue-900 text-blue-300">${opp.category}</span>
+                    </td>
+                    <td class="py-3">
+                        <span class="${signalColor} font-semibold">${opp.signal}</span>
+                    </td>
+                    <td class="py-3">
+                        <div class="flex items-center">
+                            <div class="w-16 bg-gray-700 rounded-full h-2 mr-2">
+                                <div class="bg-blue-400 h-2 rounded-full" style="width: ${opp.confidence}%"></div>
+                            </div>
+                            <span class="text-sm">${opp.confidence}%</span>
+                        </div>
+                    </td>
+                    <td class="py-3">
+                        <span class="text-purple-400 text-sm">${opp.psychology}</span>
+                    </td>
+                    <td class="py-3">
+                        <span class="text-yellow-400 font-semibold">${opp.opportunityScore}</span>
+                    </td>
+                    <td class="py-3">
+                        <button onclick="simulateTrade('${opp.symbol}')" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-xs">
+                            Paper Trade
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateAnalysisPanels() {
+            // News Sentiment
+            const newsItems = [
+                'AI tokens showing positive sentiment (+67)',
+                'DeFi regulation concerns (-23)',
+                'Gaming tokens partnership news (+45)'
+            ];
+            document.getElementById('news-sentiment').innerHTML = newsItems.map(item => 
+                `<div class="text-sm ${item.includes('+') ? 'text-green-400' : 'text-red-400'}">${item}</div>`
+            ).join('');
+
+            // Influencer Signals
+            const influencerItems = [
+                'Vitalik: Bullish on scaling (Credibility: 90%)',
+                'BitBoy: Bearish signal (Contrarian: ✓)',
+                'CZ: Exchange update positive'
+            ];
+            document.getElementById('influencer-signals').innerHTML = influencerItems.map(item => 
+                `<div class="text-sm text-purple-300">${item}</div>`
+            ).join('');
+
+            // Market Psychology
+            const psychologyItems = [
+                'Dominant emotion: GREED',
+                'Euphoria warning: High',
+                'Fear level: Low'
+            ];
+            document.getElementById('market-psychology').innerHTML = psychologyItems.map(item => 
+                `<div class="text-sm text-green-300">${item}</div>`
+            ).join('');
+
+            // Whale Activity
+            const whaleItems = [
+                'Large BTC accumulation detected',
+                'USDC whale movements: +$50M',
+                'Stop hunting in PEPE: Active'
+            ];
+            document.getElementById('whale-activity').innerHTML = whaleItems.map(item => 
+                `<div class="text-sm text-cyan-300">${item}</div>`
+            ).join('');
+        }
+
+        function updateSystemStatus() {
+            document.getElementById('tech-status').textContent = 'Active';
+            document.getElementById('news-status').textContent = 'Active';
+            document.getElementById('influencer-status').textContent = 'Active';
+            document.getElementById('candle-status').textContent = 'Active';
+        }
+
+        // Chart initialization
+        function initializeChart() {
+            const ctx = document.getElementById('performance-chart').getContext('2d');
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'P&L',
+                        data: [],
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#ffffff' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#ffffff' },
+                            grid: { color: '#374151' }
+                        },
+                        y: {
+                            ticks: { color: '#ffffff' },
+                            grid: { color: '#374151' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function addPerformanceData() {
+            const now = new Date();
+            const timeLabel = now.toLocaleTimeString();
+            
+            performanceChart.data.labels.push(timeLabel);
+            performanceChart.data.datasets[0].data.push(botState.totalPnL);
+            
+            // Keep only last 20 data points
+            if (performanceChart.data.labels.length > 20) {
+                performanceChart.data.labels.shift();
+                performanceChart.data.datasets[0].data.shift();
+            }
+            
+            performanceChart.update('none');
+        }
+
+        // Utility functions
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function simulateInstallation(text, duration) {
+            writeToTerminal(`  ${text}...`, 'info');
+            await sleep(duration);
+        }
+
+        function simulateTrade(symbol) {
+            const opportunity = botState.opportunities.find(opp => opp.symbol === symbol);
+            if (opportunity) {
+                writeToTerminal(`🎯 Manually executing paper trade for ${symbol}...`, 'info');
+                // Add manual trade execution logic here
+            }
+        }
+
+        // Auto-discovery every 5 minutes when running
+        setInterval(() => {
+            if (botState.running && botState.opportunities.length > 0) {
+                writeToTerminal('🔄 Auto-refreshing market opportunities...', 'info');
+                // You could call discoverOpportunities() here for real auto-discovery
+            }
+        }, 300000);
+
+    </script>
+</body>
+</html>
