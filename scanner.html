@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎼 Crypto Trading Symphony Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #00ff88;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            background: linear-gradient(45deg, #00ff88, #00d4ff, #ff00aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+
+        .tagline {
+            color: #888;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .status-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            color: #00ff88;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .panel:hover {
+            border-color: rgba(0, 255, 136, 0.6);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+
+        .panel-title {
+            color: #00d4ff;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            padding: 15px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            background: linear-gradient(45deg, #00ff88, #00d4ff);
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff00aa, #ff6b6b);
+            border-color: #ff00aa;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #ff6b6b, #ff00aa);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #00d4ff;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+
+        .terminal {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .terminal-line {
+            margin-bottom: 5px;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .terminal-timestamp {
+            color: #666;
+            margin-right: 10px;
+        }
+
+        .terminal-info { color: #00d4ff; }
+        .terminal-success { color: #00ff88; }
+        .terminal-warning { color: #ffaa00; }
+        .terminal-error { color: #ff4444; }
+        .terminal-specialist { color: #aa88ff; }
+
+        .specialists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .specialist-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .specialist-card:hover {
+            border-color: rgba(0, 255, 136, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .specialist-name {
+            color: #00d4ff;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .specialist-status {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .specialist-accuracy {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .trading-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .trading-table th,
+        .trading-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+        }
+
+        .trading-table th {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .profit { color: #00ff88; }
+        .loss { color: #ff4444; }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00d4ff);
+            transition: width 0.3s ease;
+        }
+
+        .alert {
+            background: rgba(255, 170, 0, 0.2);
+            border: 1px solid #ffaa00;
+            color: #ffaa00;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideInDown 0.3s ease;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 255, 136, 0.3);
+            border-radius: 50%;
+            border-top-color: #00ff88;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-element {
+            position: absolute;
+            color: rgba(0, 255, 136, 0.1);
+            font-size: 1.5rem;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating background elements -->
+    <div class="floating-elements" id="floatingElements"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎼 CRYPTO SYMPHONY</h1>
+            <div class="tagline">Built by stoners who don't want to lose their weed money 🌿</div>
+        </div>
+
+        <!-- Alert -->
+        <div class="alert" id="alertBox"></div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-label">Capital</div>
+                <div class="status-value" id="currentCapital">$25.00</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Available</div>
+                <div class="status-value" id="availableCapital">$25.00</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Total Earnings</div>
+                <div class="status-value" id="totalEarnings">$0.00</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Win Rate</div>
+                <div class="status-value" id="winRate">0%</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Active Positions</div>
+                <div class="status-value" id="activePositions">0</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Scale Factor</div>
+                <div class="status-value" id="scaleFactor">1x</div>
+            </div>
+        </div>
+
+        <!-- Main Controls -->
+        <div class="control-grid">
+            <button class="btn btn-primary" onclick="startAutoTrading()">
+                🎯 Start Auto Trading
+            </button>
+            <button class="btn" onclick="analyzeSymbol()">
+                📊 Analyze Symbol
+            </button>
+            <button class="btn" onclick="discoverCoins()">
+                🔍 Discover Coins
+            </button>
+            <button class="btn" onclick="showPerformance()">
+                💰 Performance
+            </button>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Analysis Panel -->
+            <div class="panel">
+                <div class="panel-title">🎼 Symphony Analysis</div>
+                
+                <div class="input-group">
+                    <label for="symbolInput">Symbol to Analyze</label>
+                    <input type="text" id="symbolInput" placeholder="BTCUSDT" value="BTCUSDT">
+                </div>
+                
+                <button class="btn" onclick="conductAnalysis()" style="width: 100%; margin-bottom: 20px;">
+                    <span id="analyzeBtn">Conduct Symphony</span>
+                </button>
+
+                <div id="analysisResults"></div>
+            </div>
+
+            <!-- Trading Control -->
+            <div class="panel">
+                <div class="panel-title">⚡ Live Trading Control</div>
+                
+                <div class="input-group">
+                    <label for="tradingSpeed">Auto Trading Speed</label>
+                    <select id="tradingSpeed">
+                        <option value="15000">⚡ Fast (15s)</option>
+                        <option value="30000" selected>🚀 Medium (30s)</option>
+                        <option value="60000">🐌 Slow (60s)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="watchlistInput">Add to Watchlist</label>
+                    <input type="text" id="watchlistInput" placeholder="ETHUSDT">
+                </div>
+
+                <button class="btn" onclick="addToWatchlist()" style="width: 100%; margin-bottom: 15px;">
+                    ➕ Add Symbol
+                </button>
+
+                <div id="watchlistDisplay"></div>
+            </div>
+        </div>
+
+        <!-- Specialists Grid -->
+        <div class="panel">
+            <div class="panel-title">🤖 AI Specialists Status</div>
+            <div class="specialists-grid" id="specialistsGrid">
+                <!-- Specialists will be populated here -->
+            </div>
+        </div>
+
+        <!-- Terminal Output -->
+        <div class="panel">
+            <div class="panel-title">💻 Symphony Terminal</div>
+            <div class="terminal" id="terminal"></div>
+            <button class="btn" onclick="clearTerminal()" style="width: 100%;">
+                🗑️ Clear Terminal
+            </button>
+        </div>
+
+        <!-- Trading Performance -->
+        <div class="panel">
+            <div class="panel-title">📈 Trading Performance</div>
+            <div id="performanceData"></div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════════
+        // 🎼 CRYPTO SYMPHONY BOT - WEB INTERFACE
+        // ═══════════════════════════════════════════════════════════════════════════════════
+
+        class CryptoSymphonyBot {
+            constructor() {
+                this.isAutoTrading = false;
+                this.autoTradingInterval = null;
+                this.watchlist = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT'];
+                this.specialists = this.initializeSpecialists();
+                this.paperTrading = this.initializePaperTrading();
+                this.marketData = new Map();
+                
+                this.init();
+            }
+
+            init() {
+                this.updateDisplay();
+                this.startFloatingElements();
+                this.logToTerminal('🎼 Crypto Symphony Bot initialized', 'info');
+                this.logToTerminal('Ready to conduct profitable trades! 🚀', 'success');
+                
+                // Auto-update every 5 seconds
+                setInterval(() => this.updateDisplay(), 5000);
+                
+                // Auto-discover coins every 30 seconds
+                setInterval(() => this.backgroundCoinDiscovery(), 30000);
+            }
+
+            initializeSpecialists() {
+                return [
+                    {
+                        name: 'TechWiz',
+                        emoji: '📊',
+                        accuracy: 0.72,
+                        confidence: 1.1,
+                        status: 'Active',
+                        trades: 15,
+                        sayings: ['Charts don\'t lie, people do', 'RSI below 30? Time to party']
+                    },
+                    {
+                        name: 'NewsHawk',
+                        emoji: '📰',
+                        accuracy: 0.65,
+                        confidence: 0.9,
+                        status: 'Active',
+                        trades: 12,
+                        sayings: ['Buy the rumor, sell the news', 'Hype without substance is noise']
+                    },
+                    {
+                        name: 'SocialSpy',
+                        emoji: '👥',
+                        accuracy: 0.58,
+                        confidence: 1.0,
+                        status: 'Active',
+                        trades: 8,
+                        sayings: ['Follow smart money, fade noise', 'When Elon tweets, markets move']
+                    },
+                    {
+                        name: 'CandleOracle',
+                        emoji: '🕯️',
+                        accuracy: 0.78,
+                        confidence: 1.3,
+                        status: 'Active',
+                        trades: 20,
+                        sayings: ['The candles speak to those who listen', 'Fear sells at any price']
+                    },
+                    {
+                        name: 'SpeedDemon',
+                        emoji: '⚡',
+                        accuracy: 0.69,
+                        confidence: 1.2,
+                        status: 'Active',
+                        trades: 25,
+                        sayings: ['Strike while iron is hot', 'Momentum is king']
+                    },
+                    {
+                        name: 'CoinHunter',
+                        emoji: '🔍',
+                        accuracy: 0.61,
+                        confidence: 0.8,
+                        status: 'Active',
+                        trades: 10,
+                        sayings: ['New gems hide in plain sight', 'Category matters more than hype']
+                    }
+                ];
+            }
+
+            initializePaperTrading() {
+                return {
+                    initialCapital: 25.00,
+                    currentCapital: 25.00,
+                    availableCapital: 25.00,
+                    totalEarnings: 0.00,
+                    positions: new Map(),
+                    tradeHistory: [],
+                    performance: {
+                        totalTrades: 0,
+                        winningTrades: 0,
+                        winRate: 0,
+                        scaleFactor: 1
+                    }
+                };
+            }
+
+            // ═══════════════════════════════════════════════════════════════════════════════════
+            // 📊 MARKET DATA & ANALYSIS
+            // ═══════════════════════════════════════════════════════════════════════════════════
+
+            async fetchMarketData(symbol) {
+                try {
+                    // Simulate API calls to Binance
+                    const price = 45000 + (Math.random() - 0.5) * 2000;
+                    const change24h = (Math.random() - 0.5) * 10;
+                    const volume = Math.random() * 1000000;
+
+                    const marketData = {
+                        symbol,
+                        price,
+                        change24h,
+                        volume,
+                        timestamp: Date.now(),
+                        klines: this.generateMockKlines(price)
+                    };
+
+                    this.marketData.set(symbol, marketData);
+                    return marketData;
+                } catch (error) {
+                    this.logToTerminal(`❌ Failed to fetch data for ${symbol}: ${error.message}`, 'error');
+                    return null;
+                }
+            }
+
+            generateMockKlines(basePrice) {
+                const klines = [];
+                let currentPrice = basePrice;
+                
+                for (let i = 0; i < 60; i++) {
+                    const volatility = 0.995 + Math.random() * 0.01;
+                    currentPrice *= volatility;
+                    
+                    const high = currentPrice * (1 + Math.random() * 0.01);
+                    const low = currentPrice * (1 - Math.random() * 0.01);
+                    const close = currentPrice * (0.995 + Math.random() * 0.01);
+                    const volume = Math.random() * 10000;
+                    
+                    klines.push([Date.now() - (60-i)*60000, currentPrice, high, low, close, volume]);
+                }
+                
+                return klines;
+            }
+
+            async conductSymphonyAnalysis(symbol) {
+                this.logToTerminal(`🎼 Conducting symphony analysis for ${symbol}...`, 'info');
+                
+                const marketData = await this.fetchMarketData(symbol);
+                if (!marketData) return null;
+
+                const analyses = {};
+                
+                // Get each specialist's analysis
+                for (const specialist of this.specialists) {
+                    const analysis = await this.getSpecialistAnalysis(specialist, symbol, marketData);
+                    analyses[specialist.name] = analysis;
+                    
+                    const emoji = this.getSignalEmoji(analysis.signal);
+                    this.logToTerminal(
+                        `[${specialist.emoji} ${specialist.name}] ${analysis.signal} (${analysis.confidence.toFixed(1)}%) - ${analysis.reasoning}`,
+                        'specialist'
+                    );
+                }
+
+                // Harmonize signals
+                const harmony = this.harmonizeSignals(analyses);
+                
+                this.logToTerminal(
+                    `🎵 SYMPHONY CONCLUSION: ${harmony.signal} (${harmony.confidence.toFixed(1)}%)`,
+                    harmony.signal === 'BUY' ? 'success' : harmony.signal === 'SELL' ? 'error' : 'warning'
+                );
+                
+                return {
+                    symbol,
+                    marketData,
+                    specialists: analyses,
+                    harmony,
+                    timestamp: Date.now()
+                };
+            }
+
+            async getSpecialistAnalysis(specialist, symbol, marketData) {
+                // Simulate specialist thinking time
+                await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 300));
+                
+                const baseConfidence = 30 + Math.random() * 50;
+                const adjustedConfidence = baseConfidence * specialist.confidence;
+                
+                // Generate signals based on specialist type and market data
+                let signal = 'WAIT';
+                let reasoning = '';
+                
+                if (specialist.name === 'TechWiz') {
+                    const rsi = 30 + Math.random() * 40;
+                    if (rsi < 35 && marketData.volume > 500000) {
+                        signal = 'BUY';
+                        reasoning = `RSI oversold (${rsi.toFixed(1)}) with volume spike`;
+                    } else if (rsi > 65) {
+                        signal = 'SELL';
+                        reasoning = `RSI overbought (${rsi.toFixed(1)})`;
+                    }
+                } else if (specialist.name === 'CandleOracle') {
+                    const emotions = ['FEAR', 'GREED', 'EUPHORIA', 'ACCUMULATION', 'DOUBT'];
+                    const emotion = emotions[Math.floor(Math.random() * emotions.length)];
+                    
+                    if (emotion === 'ACCUMULATION') {
+                        signal = 'BUY';
+                        reasoning = 'Smart money whispers while retail shouts';
+                    } else if (emotion === 'EUPHORIA') {
+                        signal = 'SELL';
+                        reasoning = 'Bulls charge with blind fury, beware the heights';
+                    }
+                } else {
+                    // Other specialists use random but weighted logic
+                    const rand = Math.random();
+                    if (rand > 0.6) signal = 'BUY';
+                    else if (rand < 0.3) signal = 'SELL';
+                    
+                    reasoning = specialist.sayings[Math.floor(Math.random() * specialist.sayings.length)];
+                }
+                
+                // Update specialist performance
+                specialist.trades++;
+                if (Math.random() > 0.4) { // Simulate 60% accuracy
+                    specialist.accuracy = Math.min(0.95, specialist.accuracy + 0.01);
+                } else {
+                    specialist.accuracy = Math.max(0.30, specialist.accuracy - 0.005);
+                }
+
+                return {
+                    signal,
+                    confidence: adjustedConfidence,
+                    reasoning: reasoning || `${specialist.name} analysis complete`
+                };
+            }
+
+            harmonizeSignals(analyses) {
+                const signals = { BUY: 0, SELL: 0, WAIT: 0 };
+                let totalConfidence = 0;
+                let validAnalyses = 0;
+
+                for (const [name, analysis] of Object.entries(analyses)) {
+                    const weight = 1 / this.specialists.length;
+                    const weightedConfidence = analysis.confidence * weight;
+                    
+                    signals[analysis.signal] += weightedConfidence;
+                    totalConfidence += weightedConfidence;
+                    validAnalyses++;
+                }
+
+                const dominantSignal = Object.keys(signals).reduce((a, b) => 
+                    signals[a] > signals[b] ? a : b
+                );
+
+                const agreement = validAnalyses > 0 ? (signals[dominantSignal] / totalConfidence) * 100 : 0;
+                
+                return {
+                    signal: dominantSignal,
+                    confidence: signals[dominantSignal],
+                    agreement,
+                    riskLevel: agreement > 70 ? 'LOW' : agreement > 50 ? 'MEDIUM' : 'HIGH'
+                };
+            }
+
+            // ═══════════════════════════════════════════════════════════════════════════════════
+            // 💰 PAPER TRADING SYSTEM
+            // ═══════════════════════════════════════════════════════════════════════════════════
+
+            async executeTrade(symbol, signal, confidence, price, reasoning) {
+                if (signal === 'WAIT') return null;
+
+                const existingPosition = this.paperTrading.positions.get(symbol);
+
+                if (signal === 'BUY' && !existingPosition) {
+                    return this.openPosition(symbol, price, confidence, reasoning);
+                } else if (signal === 'SELL' && existingPosition) {
+                    return this.closePosition(symbol, price, reasoning);
+                }
+
+                return null;
+            }
+
+            openPosition(symbol, price, confidence, reasoning) {
+                if (this.paperTrading.availableCapital <= 0) {
+                    return { success: false, reason: 'No capital available' };
+                }
+
+                const maxPositionSize = this.paperTrading.availableCapital * 0.02; // 2% max
+                const confidenceMultiplier = Math.min(1, confidence / 100);
+                const positionSize = maxPositionSize * confidenceMultiplier;
+
+                if (positionSize < 1) {
+                    return { success: false, reason: 'Position size too small' };
+                }
+
+                const quantity = positionSize / price;
+                const stopLoss = price * 0.98; // 2% stop loss
+                const takeProfit = price * 1.25; // 25% take profit
+
+                const position = {
+                    symbol,
+                    entryPrice: price,
+                    quantity,
+                    stopLoss,
+                    takeProfit,
+                    entryTime: Date.now(),
+                    confidence,
+                    reasoning,
+                    positionSize
+                };
+
+                this.paperTrading.positions.set(symbol, position);
+                this.paperTrading.availableCapital -= positionSize;
+
+                this.logToTerminal(
+                    `💰 OPENED POSITION: ${symbol} | Entry: $${price.toFixed(6)} | Size: $${positionSize.toFixed(2)}`,
+                    'success'
+                );
+
+                return { success: true, position };
+            }
+
+            closePosition(symbol, exitPrice, reasoning) {
+                const position = this.paperTrading.positions.get(symbol);
+                if (!position) return { success: false, reason: 'No position to close' };
+
+                const exitValue = position.quantity * exitPrice;
+                const profit = exitValue - position.positionSize;
+                const profitPct = (profit / position.positionSize) * 100;
+
+                // Update capital
+                this.paperTrading.currentCapital += profit;
+                this.paperTrading.availableCapital += exitValue;
+
+                if (profit > 0) {
+                    this.paperTrading.totalEarnings += profit;
+                    this.paperTrading.performance.winningTrades++;
+                }
+
+                // Record trade
+                const trade = {
+                    symbol,
+                    entryPrice: position.entryPrice,
+                    exitPrice,
+                    quantity: position.quantity,
+                    profit,
+                    profitPct,
+                    entryTime: position.entryTime,
+                    exitTime: Date.now(),
+                    success: profit > 0
+                };
+
+                this.paperTrading.tradeHistory.push(trade);
+                this.paperTrading.positions.delete(symbol);
+                this.updatePerformanceMetrics();
+
+                const logType = profit > 0 ? 'success' : 'error';
+                this.logToTerminal(
+                    `💸 CLOSED POSITION: ${symbol} | Exit: $${exitPrice.toFixed(6)} | P&L: $${profit.toFixed(2)} (${profitPct.toFixed(1)}%)`,
+                    logType
+                );
+
+                return { success: true, trade };
+            }
+
+            updatePerformanceMetrics() {
+                const performance = this.paperTrading.performance;
+                performance.totalTrades = this.paperTrading.tradeHistory.length;
+                performance.winRate = performance.totalTrades > 0 ? 
+                    (performance.winningTrades / performance.totalTrades) * 100 : 0;
+
+                // Check for scaling opportunities
+                if (performance.totalTrades >= 10 && performance.winRate >= 60 && performance.scaleFactor < 100) {
+                    this.scaleUp();
+                } else if (performance.totalTrades >= 10 && performance.winRate < 40) {
+                    this.scaleDown();
+                }
+            }
+
+            scaleUp() {
+                const newScale = Math.min(this.paperTrading.performance.scaleFactor * 10, 100);
+                this.paperTrading.availableCapital *= 10;
+                this.paperTrading.performance.scaleFactor = newScale;
+                
+                this.logToTerminal(`🚀 SCALING UP! New scale factor: ${newScale}x`, 'success');
+                this.showAlert(`🚀 Scaling up to ${newScale}x! Win rate: ${this.paperTrading.performance.winRate.toFixed(1)}%`, 'success');
+            }
+
+            scaleDown() {
+                const newScale = Math.max(this.paperTrading.performance.scaleFactor * 0.5, 1);
+                this.paperTrading.availableCapital *= 0.5;
+                this.paperTrading.performance.scaleFactor = newScale;
+                
+                this.logToTerminal(`📉 Scaling down to ${newScale}x - improving strategy`, 'warning');
+            }
+
+            // ═══════════════════════════════════════════════════════════════════════════════════
+            // 🎮 AUTO TRADING & DISCOVERY
+            // ═══════════════════════════════════════════════════════════════════════════════════
+
+            async startAutoTrading() {
+                if (this.isAutoTrading) {
+                    this.stopAutoTrading();
+                    return;
+                }
+
+                this.isAutoTrading = true;
+                const interval = parseInt(document.getElementById('tradingSpeed').value);
+                
+                this.logToTerminal(`🎯 Auto trading started! Scanning every ${interval/1000} seconds`, 'info');
+                this.showAlert(`🎯 Auto trading activated! Scanning ${this.watchlist.length} symbols`, 'info');
+                
+                // Update button
+                const btn = event.target;
+                btn.innerHTML = '🛑 Stop Auto Trading';
+                btn.style.background = 'linear-gradient(45deg, #ff4444, #ff6666)';
+                
+                this.autoTradingInterval = setInterval(async () => {
+                    await this.performAutoScan();
+                }, interval);
+
+                // Initial scan
+                await this.performAutoScan();
+            }
+
+            stopAutoTrading() {
+                this.isAutoTrading = false;
+                if (this.autoTradingInterval) {
+                    clearInterval(this.autoTradingInterval);
+                    this.autoTradingInterval = null;
+                }
+                
+                this.logToTerminal('🛑 Auto trading stopped', 'warning');
+                
+                // Reset button
+                const buttons = document.querySelectorAll('.btn-primary');
+                buttons.forEach(btn => {
+                    if (btn.textContent.includes('Stop')) {
+                        btn.innerHTML = '🎯 Start Auto Trading';
+                        btn.style.background = 'linear-gradient(45deg, #ff00aa, #ff6b6b)';
+                    }
+                });
+            }
+
+            async performAutoScan() {
+                const timestamp = new Date().toLocaleTimeString();
+                this.logToTerminal(`⏰ ${timestamp} - Auto scan initiated...`, 'info');
+
+                for (const symbol of this.watchlist) {
+                    try {
+                        const analysis = await this.conductSymphonyAnalysis(symbol);
+                        if (!analysis) continue;
+
+                        const hasPosition = this.paperTrading.positions.has(symbol);
+                        const harmony = analysis.harmony;
+
+                        // Auto buy logic
+                        if (harmony.signal === 'BUY' && !hasPosition && harmony.confidence > 65) {
+                            const result = await this.executeTrade(
+                                symbol,
+                                'BUY',
+                                harmony.confidence,
+                                analysis.marketData.price,
+                                harmony.reasoning || 'Auto trading decision'
+                            );
+                            
+                            if (result?.success) {
+                                this.logToTerminal(`🎯 AUTO BUY: ${symbol} at $${analysis.marketData.price.toFixed(6)}`, 'success');
+                            }
+                        }
+                        
+                        // Auto sell logic
+                        else if (harmony.signal === 'SELL' && hasPosition) {
+                            const result = await this.executeTrade(
+                                symbol,
+                                'SELL',
+                                harmony.confidence,
+                                analysis.marketData.price,
+                                harmony.reasoning || 'Auto exit decision'
+                            );
+                            
+                            if (result?.success) {
+                                this.logToTerminal(`💸 AUTO SELL: ${symbol} at $${analysis.marketData.price.toFixed(6)}`, 'error');
+                            }
+                        }
+
+                        // Auto profit taking
+                        if (hasPosition) {
+                            const position = this.paperTrading.positions.get(symbol);
+                            const currentProfitPct = ((analysis.marketData.price - position.entryPrice) / position.entryPrice) * 100;
+                            
+                            if (currentProfitPct >= 25) {
+                                await this.closePosition(symbol, analysis.marketData.price, `Auto profit taking at ${currentProfitPct.toFixed(1)}%`);
+                            }
+                        }
+
+                    } catch (error) {
+                        this.logToTerminal(`❌ ${symbol}: ${error.message}`, 'error');
+                    }
+                }
+            }
+
+            async backgroundCoinDiscovery() {
+                // Simulate discovering new trending coins
+                const potentialCoins = [
+                    'SOLUSDT', 'ADAUSDT', 'DOGEUSDT', 'MATICUSDT', 'LINKUSDT',
+                    'ATOMUSDT', 'DOTUSDT', 'AVAXUSDT', 'ALGOUSDT', 'XRPUSDT'
+                ];
+                
+                const newCoin = potentialCoins[Math.floor(Math.random() * potentialCoins.length)];
+                
+                if (!this.watchlist.includes(newCoin)) {
+                    // Analyze the new coin
+                    const analysis = await this.conductSymphonyAnalysis(newCoin);
+                    if (analysis && analysis.harmony.confidence > 60) {
+                        this.watchlist.push(newCoin);
+                        this.logToTerminal(`🔍 Discovered high-potential coin: ${newCoin} (${analysis.harmony.confidence.toFixed(1)}% confidence)`, 'success');
+                        this.updateWatchlistDisplay();
+                    }
+                }
+            }
+
+            // ═══════════════════════════════════════════════════════════════════════════════════
+            // 🖥️ UI UPDATE FUNCTIONS
+            // ═══════════════════════════════════════════════════════════════════════════════════
+
+            updateDisplay() {
+                this.updateStatusBar();
+                this.updateSpecialistsDisplay();
+                this.updateWatchlistDisplay();
+                this.updatePerformanceDisplay();
+            }
+
+            updateStatusBar() {
+                document.getElementById('currentCapital').textContent = `$${this.paperTrading.currentCapital.toFixed(2)}`;
+                document.getElementById('availableCapital').textContent = `$${this.paperTrading.availableCapital.toFixed(2)}`;
+                document.getElementById('totalEarnings').textContent = `$${this.paperTrading.totalEarnings.toFixed(2)}`;
+                document.getElementById('winRate').textContent = `${this.paperTrading.performance.winRate.toFixed(1)}%`;
+                document.getElementById('activePositions').textContent = this.paperTrading.positions.size;
+                document.getElementById('scaleFactor').textContent = `${this.paperTrading.performance.scaleFactor}x`;
+            }
+
+            updateSpecialistsDisplay() {
+                const grid = document.getElementById('specialistsGrid');
+                grid.innerHTML = '';
+
+                this.specialists.forEach(specialist => {
+                    const card = document.createElement('div');
+                    card.className = 'specialist-card';
+                    card.innerHTML = `
+                        <div class="specialist-name">${specialist.emoji} ${specialist.name}</div>
+                        <div class="specialist-status">Status: ${specialist.status}</div>
+                        <div class="specialist-accuracy">Accuracy: ${(specialist.accuracy * 100).toFixed(1)}%</div>
+                        <div style="margin-top: 10px; font-size: 0.8rem; color: #888;">
+                            Trades: ${specialist.trades} | Conf: ${specialist.confidence.toFixed(1)}x
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+            updateWatchlistDisplay() {
+                const display = document.getElementById('watchlistDisplay');
+                if (this.watchlist.length === 0) {
+                    display.innerHTML = '<div style="color: #666;">No symbols in watchlist</div>';
+                    return;
+                }
+
+                display.innerHTML = `
+                    <div style="margin-top: 15px;">
+                        <strong>Watchlist (${this.watchlist.length}):</strong><br>
+                        ${this.watchlist.map(symbol => `
+                            <span style="background: rgba(0,255,136,0.1); padding: 3px 8px; margin: 2px; border-radius: 5px; display: inline-block; font-size: 0.9rem;">
+                                ${symbol}
+                                <span onclick="removeFromWatchlist('${symbol}')" style="color: #ff4444; cursor: pointer; margin-left: 5px;">×</span>
+                            </span>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            updatePerformanceDisplay() {
+                const container = document.getElementById('performanceData');
+                const recentTrades = this.paperTrading.tradeHistory.slice(-5);
+                
+                let html = `
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            <div style="text-align: center;">
+                                <div style="color: #666;">Total Trades</div>
+                                <div style="color: #00ff88; font-size: 1.2rem; font-weight: bold;">${this.paperTrading.performance.totalTrades}</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: #666;">Winning Trades</div>
+                                <div style="color: #00ff88; font-size: 1.2rem; font-weight: bold;">${this.paperTrading.performance.winningTrades}</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: #666;">Active Positions</div>
+                                <div style="color: #00d4ff; font-size: 1.2rem; font-weight: bold;">${this.paperTrading.positions.size}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (recentTrades.length > 0) {
+                    html += `
+                        <h4 style="color: #00d4ff; margin-bottom: 15px;">Recent Trades</h4>
+                        <table class="trading-table">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Entry</th>
+                                    <th>Exit</th>
+                                    <th>P&L</th>
+                                    <th>%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${recentTrades.map(trade => `
+                                    <tr>
+                                        <td>${trade.symbol}</td>
+                                        <td>$${trade.entryPrice.toFixed(6)}</td>
+                                        <td>$${trade.exitPrice.toFixed(6)}</td>
+                                        <td class="${trade.profit > 0 ? 'profit' : 'loss'}">$${trade.profit.toFixed(2)}</td>
+                                        <td class="${trade.profit > 0 ? 'profit' : 'loss'}">${trade.profitPct.toFixed(1)}%</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+                if (this.paperTrading.positions.size > 0) {
+                    html += `
+                        <h4 style="color: #00d4ff; margin: 20px 0 15px;">Active Positions</h4>
+                        <table class="trading-table">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Entry Price</th>
+                                    <th>Size</th>
+                                    <th>Stop Loss</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${Array.from(this.paperTrading.positions.entries()).map(([symbol, position]) => `
+                                    <tr>
+                                        <td>${symbol}</td>
+                                        <td>$${position.entryPrice.toFixed(6)}</td>
+                                        <td>$${position.positionSize.toFixed(2)}</td>
+                                        <td>$${position.stopLoss.toFixed(6)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+                container.innerHTML = html;
+            }
+
+            logToTerminal(message, type = 'info') {
+                const terminal = document.getElementById('terminal');
+                const timestamp = new Date().toLocaleTimeString();
+                
+                const line = document.createElement('div');
+                line.className = `terminal-line terminal-${type}`;
+                line.innerHTML = `<span class="terminal-timestamp">[${timestamp}]</span> ${message}`;
+                
+                terminal.appendChild(line);
+                terminal.scrollTop = terminal.scrollHeight;
+                
+                // Keep only last 100 lines
+                while (terminal.children.length > 100) {
+                    terminal.removeChild(terminal.firstChild);
+                }
+            }
+
+            showAlert(message, type = 'info') {
+                const alertBox = document.getElementById('alertBox');
+                alertBox.textContent = message;
+                alertBox.className = `alert show alert-${type}`;
+                
+                setTimeout(() => {
+                    alertBox.className = 'alert';
+                }, 5000);
+            }
+
+            getSignalEmoji(signal) {
+                switch(signal) {
+                    case 'BUY': return '🟢';
+                    case 'SELL': return '🔴';
+                    default: return '🟡';
+                }
+            }
+
+            startFloatingElements() {
+                const container = document.getElementById('floatingElements');
+                const symbols = ['₿', 'Ξ', '🚀', '💎', '🌙', '⚡', '🎼', '💰'];
+                
+                setInterval(() => {
+                    const element = document.createElement('div');
+                    element.className = 'floating-element';
+                    element.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                    element.style.left = Math.random() * 100 + '%';
+                    element.style.animationDuration = (15 + Math.random() * 10) + 's';
+                    
+                    container.appendChild(element);
+                    
+                    setTimeout(() => {
+                        container.removeChild(element);
+                    }, 25000);
+                }, 3000);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════════
+        // 🎮 UI INTERACTION FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════════════════════
+
+        let bot;
+
+        // Initialize the bot when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            bot = new CryptoSymphonyBot();
+        });
+
+        async function conductAnalysis() {
+            const symbol = document.getElementById('symbolInput').value.toUpperCase();
+            if (!symbol) return;
+
+            const btn = document.getElementById('analyzeBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> Analyzing...';
+
+            try {
+                const analysis = await bot.conductSymphonyAnalysis(symbol);
+                
+                if (analysis) {
+                    const resultsDiv = document.getElementById('analysisResults');
+                    resultsDiv.innerHTML = `
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <strong>${symbol}</strong>
+                                <span style="color: ${analysis.marketData.change24h > 0 ? '#00ff88' : '#ff4444'}">
+                                    $${analysis.marketData.price.toFixed(6)} (${analysis.marketData.change24h.toFixed(2)}%)
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span>Signal:</span>
+                                <span style="color: ${analysis.harmony.signal === 'BUY' ? '#00ff88' : analysis.harmony.signal === 'SELL' ? '#ff4444' : '#ffaa00'}; font-weight: bold;">
+                                    ${bot.getSignalEmoji(analysis.harmony.signal)} ${analysis.harmony.signal}
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span>Confidence:</span>
+                                <span style="color: #00d4ff; font-weight: bold;">${analysis.harmony.confidence.toFixed(1)}%</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Agreement:</span>
+                                <span style="color: #00d4ff;">${analysis.harmony.agreement.toFixed(1)}%</span>
+                            </div>
+                        </div>
+                    `;
+
+                    // Ask if user wants to execute trade
+                    if (analysis.harmony.signal !== 'WAIT' && analysis.harmony.confidence > 60) {
+                        const execute = confirm(`Execute ${analysis.harmony.signal} trade for ${symbol}?`);
+                        if (execute) {
+                            const result = await bot.executeTrade(
+                                symbol,
+                                analysis.harmony.signal,
+                                analysis.harmony.confidence,
+                                analysis.marketData.price,
+                                'Manual trade execution'
+                            );
+                            
+                            if (result?.success) {
+                                bot.showAlert(`✅ ${analysis.harmony.signal} trade executed for ${symbol}!`, 'success');
+                            } else {
+                                bot.showAlert(`❌ Trade failed: ${result?.reason}`, 'error');
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                bot.logToTerminal(`❌ Analysis failed: ${error.message}`, 'error');
+            } finally {
+                btn.innerHTML = originalText;
+            }
+        }
+
+        function analyzeSymbol() {
+            conductAnalysis();
+        }
+
+        function startAutoTrading() {
+            bot.startAutoTrading();
+        }
+
+        function addToWatchlist() {
+            const input = document.getElementById('watchlistInput');
+            const symbol = input.value.toUpperCase();
+            
+            if (symbol && !bot.watchlist.includes(symbol)) {
+                bot.watchlist.push(symbol);
+                bot.updateWatchlistDisplay();
+                bot.logToTerminal(`➕ Added ${symbol} to watchlist`, 'success');
+                input.value = '';
+            }
+        }
+
+        function removeFromWatchlist(symbol) {
+            bot.watchlist = bot.watchlist.filter(s => s !== symbol);
+            bot.updateWatchlistDisplay();
+            bot.logToTerminal(`➖ Removed ${symbol} from watchlist`, 'warning');
+        }
+
+        async function discoverCoins() {
+            bot.logToTerminal('🔍 Discovering new trading opportunities...', 'info');
+            
+            const potentialCoins = [
+                'SOLUSDT', 'ADAUSDT', 'DOGEUSDT', 'MATICUSDT', 'LINKUSDT',
+                'ATOMUSDT', 'DOTUSDT', 'AVAXUSDT', 'ALGOUSDT', 'XRPUSDT',
+                'FTMUSDT', 'MANAUSDT', 'SANDUSDT', 'CHZUSDT', 'ENJUSDT'
+            ];
+            
+            const opportunities = [];
+            
+            for (let i = 0; i < 5; i++) {
+                const coin = potentialCoins[Math.floor(Math.random() * potentialCoins.length)];
+                const analysis = await bot.conductSymphonyAnalysis(coin);
+                
+                if (analysis && analysis.harmony.signal === 'BUY' && analysis.harmony.confidence > 50) {
+                    opportunities.push(analysis);
+                }
+            }
+            
+            if (opportunities.length > 0) {
+                bot.logToTerminal(`🎯 Found ${opportunities.length} opportunities!`, 'success');
+                opportunities.forEach(opp => {
+                    if (!bot.watchlist.includes(opp.symbol)) {
+                        bot.watchlist.push(opp.symbol);
+                    }
+                });
+                bot.updateWatchlistDisplay();
+                bot.showAlert(`🔍 Discovered ${opportunities.length} new opportunities and added to watchlist!`, 'success');
+            } else {
+                bot.logToTerminal('No strong opportunities found in current scan', 'warning');
+            }
+        }
+
+        function showPerformance() {
+            bot.updatePerformanceDisplay();
+            bot.logToTerminal('📊 Performance dashboard updated', 'info');
+        }
+
+        function clearTerminal() {
+            document.getElementById('terminal').innerHTML = '';
+            bot.logToTerminal('🎼 Symphony terminal cleared', 'info');
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'Enter':
+                        e.preventDefault();
+                        conductAnalysis();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        bot.startAutoTrading();
+                        break;
+                    case 'd':
+                        e.preventDefault();
+                        discoverCoins();
+                        break;
+                }
+            }
+        });
+
+        // Auto-focus symbol input
+        document.getElementById('symbolInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                conductAnalysis();
+            }
+        });
+
+        document.getElementById('watchlistInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addToWatchlist();
+            }
+        });
+    </script>
+</body>
+</html>
